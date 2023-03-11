@@ -270,8 +270,8 @@ public class RentalView {
 		controller.addTenant(tenant);
 		System.out.println(
 				"Hi " + tenant.getFirstName() + ",\nWelcome to SmartStay! Your rental ID is: " + tenant.getTenantID()
-						+ ". You are successfully registered with us. "
-						+ "Please remember to keep this ID for any future communication with our rental system.\n");
+				+ ". You are successfully registered with us. "
+				+ "Please remember to keep this ID for any future communication with our rental system.\n");
 	}
 
 	/**
@@ -311,6 +311,15 @@ public class RentalView {
 
 		Property property = properties.get(propertyChoice - 1);
 
+		System.out.print("Enter the lease start date (yyyy-MM-dd): ");
+		String startDateStr = scanner.nextLine();
+		LocalDate startDate = LocalDate.parse(startDateStr);
+
+		System.out.print("Enter the lease end date (yyyy-MM-dd): ");
+		String endDateStr = scanner.nextLine();
+		LocalDate endDate = LocalDate.parse(endDateStr);
+
+
 		ArrayList<Property> vacantProperties = controller.getVacantUnits();
 
 		boolean isVacant = false;
@@ -321,19 +330,38 @@ public class RentalView {
 			}
 		}
 
-		if (isVacant) {
-			System.out.print("Enter the lease start date (yyyy-MM-dd): ");
-			String startDateStr = scanner.nextLine();
-			LocalDate startDate = LocalDate.parse(startDateStr);
+		Lease coincidingLease = controller.getLeaseByPropertyAndDates(property, startDate, endDate);
 
-			System.out.print("Enter the lease end date (yyyy-MM-dd): ");
-			String endDateStr = scanner.nextLine();
-			LocalDate endDate = LocalDate.parse(endDateStr);
+		if (isVacant || coincidingLease != null) {
 
+			// Check if there is an existing lease during the specified dates
+			if (coincidingLease != null) {
+				// Ask user if they want to change the lease data or exit
+				System.out.println("\nThere is an existing lease for this property during the specified dates."
+						+ "\nDates of coinciding lease : "+coincidingLease.getStartDate() + " to "+ coincidingLease.getEndDate());
+				System.out.print("\n\nDo you want to change the lease data? (Y/N): ");
+			
+				String response = scanner.nextLine();
+				if (response.equalsIgnoreCase("Y")) {
+
+					System.out.print("Enter the new start date (yyyy-MM-dd): ");
+					startDateStr = scanner.nextLine();
+					startDate = LocalDate.parse(startDateStr);
+
+					System.out.print("Enter the new end date (yyyy-MM-dd): ");
+					endDateStr = scanner.nextLine();
+					endDate = LocalDate.parse(endDateStr);
+				}
+				else {
+					property.addInterestedTenants(tenant);
+					System.out.println("Sorry this unit is rented out for the specified time line. \nThe tenant will be notified once the unit is available.\n");
+					return;
+				}
+			}
+			// Allow user to enter new lease data
 			System.out.print("Enter the rent amount: ");
 			double rentAmount = scanner.nextDouble();
 			scanner.nextLine();
-
 			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
 			controller.addLease(lease);
 			System.out.println("The tenant " + tenant.getFirstName() + " " + tenant.getLastName() + " has been successfully rented the unit at " 
@@ -398,7 +426,7 @@ public class RentalView {
 		}
 		System.out.println();
 	}
-	
+
 	/**
 	 * Displays all leases by retrieving the list of leases from the controller
 	 * and printing them to the console.
@@ -431,7 +459,7 @@ public class RentalView {
 			}
 		}
 	}
-	
+
 	/**
 	 * Displays the summary of all the paid and unpaid rents.
 	 */

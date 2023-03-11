@@ -98,7 +98,7 @@ public class RentalController {
 				break;
 			}
 		}
-
+		
 		if (propertyAvailable) {
 			Lease lease = new Lease(tenant, property, startDate, endDate, rentAmount);
 			leases.add(lease);
@@ -218,5 +218,17 @@ public class RentalController {
 		if(!unpaidTenants.isEmpty())
 			paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
 		return paidOrNotPaidAndTenants;
+	}
+	
+	public Lease getLeaseByPropertyAndDates(Property property, LocalDate startDate, LocalDate endDate) {
+	    ArrayList<Lease> leases = getAllLeases();
+
+	    for (Lease lease : leases) {
+	        if (lease.getProperty().getPropertyId() == property.getPropertyId() && lease.getEndDate().isAfter(startDate) && lease.getStartDate().isBefore(endDate)) {
+	            return lease;
+	        }
+	    }
+
+	    return null;
 	}
 }
