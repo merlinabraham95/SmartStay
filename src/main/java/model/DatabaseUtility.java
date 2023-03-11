@@ -8,12 +8,13 @@ public class DatabaseUtility {
 	private ArrayList<Property> properties;
 	private ArrayList<Tenant> tenants;
 	private ArrayList<Lease> leases;
-
+	private ArrayList<Lease> expiredLeases;
 	
     private DatabaseUtility() {
     	this.properties = new ArrayList<>();
 		this.tenants = new ArrayList<>();
 		this.leases = new ArrayList<>();
+		this.expiredLeases = new ArrayList<>();
     }
 
     public static DatabaseUtility getInstance() {
@@ -33,6 +34,10 @@ public class DatabaseUtility {
 
 	public ArrayList<Lease> getLeases() {
 		return leases;
+	}
+	
+	public ArrayList<Lease> getExpiredLeases() {
+		return expiredLeases;
 	}
 
 }

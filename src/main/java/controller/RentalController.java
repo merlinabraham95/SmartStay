@@ -20,8 +20,9 @@ public class RentalController {
 	private ArrayList<Property> properties;
 	private ArrayList<Tenant> tenants;
 	private ArrayList<Lease> leases;
+	private ArrayList<Lease> expiredLeases;
 
-	
+
 	/**
 	 * A constructor that gets the instances of tenants, properties and leases from the DatabaseUtility singleton class
 	 */
@@ -30,6 +31,7 @@ public class RentalController {
 		this.tenants = databaseUtility.getTenants();
 		this.properties = databaseUtility.getProperties();
 		this.leases = databaseUtility.getLeases();
+		this.expiredLeases = databaseUtility.getExpiredLeases();
 	}
 
 	/**
@@ -47,7 +49,7 @@ public class RentalController {
 	public void addTenant(Tenant tenant) {
 		tenants.add(tenant);
 	}
-	
+
 	/**
 	 * Adds a lease to the leases
 	 * @param lease
@@ -163,6 +165,7 @@ public class RentalController {
 	 */
 	public HashMap<String, ArrayList<String>> notifyInterestedTenants() {
 		HashMap<String, ArrayList<String>> propertyAndInterestedTenants  = new HashMap<String, ArrayList<String>>();
+		ArrayList<Lease> expiredTempLeases = new ArrayList<Lease>();
 		for(Lease lease : leases) {
 			if(lease.isExpired()) {
 				Property property = lease.getProperty();
@@ -174,8 +177,13 @@ public class RentalController {
 					}
 					propertyAndInterestedTenants.put(property.getFullAddress(), interestedTenantNames);
 				}
+				// adding lease to expired lease list so that current lease are always active leases
+				expiredTempLeases.add(lease);
 			}
 		}
+		//removing expired lease from lease list
+		leases.removeAll(expiredTempLeases);
+		
 		return propertyAndInterestedTenants;
 	}
 
@@ -218,5 +226,26 @@ public class RentalController {
 		if(!unpaidTenants.isEmpty())
 			paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
 		return paidOrNotPaidAndTenants;
+	}
+
+	/**
+	Retrieves a lease object that matches the specified property and date range.
+	@param property The property object to match against.
+	@param startDate The start date of the date range to match against.
+	@param endDate The end date of the date range to match against.
+	@return A lease object that matches the specified property and date range, or null if no match is found.
+	 */
+
+	public Lease getLeaseByPropertyAndDates(Property property, LocalDate startDate, LocalDate endDate) {
+		// Get all leases from the repository
+		ArrayList<Lease> leases = getAllLeases();
+
+		// Iterate through all leases and return the first one that matches the specified criteria
+		for (Lease lease : leases) {
+			if (lease.getProperty().getPropertyId() == property.getPropertyId() && lease.getEndDate().isAfter(startDate) && lease.getStartDate().isBefore(endDate)) {
+				return lease;
+			}
+		}
+		return null;
 	}
 }
