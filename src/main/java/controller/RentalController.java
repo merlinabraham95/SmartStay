@@ -10,6 +10,11 @@ import model.Payment;
 import model.Property;
 import model.Tenant;
 
+/**
+ * The RentalController class represents the controller of the SmartStay (rental management
+ * system). It handles the business logic for properties, tenants, and leases. 
+ * It interacts with the model and the view.
+ */
 public class RentalController {
 
 	private ArrayList<Property> properties;
@@ -17,6 +22,9 @@ public class RentalController {
 	private ArrayList<Lease> leases;
 
 	
+	/**
+	 * A constructor that gets the instances of tenants, properties and leases from the DatabaseUtility singleton class
+	 */
 	public RentalController() {
 		DatabaseUtility databaseUtility = DatabaseUtility.getInstance();
 		this.tenants = databaseUtility.getTenants();
@@ -24,30 +32,63 @@ public class RentalController {
 		this.leases = databaseUtility.getLeases();
 	}
 
+	/**
+	 * Adds a property to the list of properties
+	 * @param property
+	 */
 	public void addProperty(Property property) {
 		properties.add(property);
 	}
 
+	/**
+	 * Adds a tenant to the list of tenants
+	 * @param tenant
+	 */
 	public void addTenant(Tenant tenant) {
 		tenants.add(tenant);
 	}
-
-	public ArrayList<Property> getAllProperties() {
-		return properties;
-	}
-
-	public ArrayList<Tenant> getAllTenants() {
-		return tenants;
-	}
-
-	public ArrayList<Lease> getAllLeases() {
-		return leases;
-	}
-
+	
+	/**
+	 * Adds a lease to the leases
+	 * @param lease
+	 */
 	public void addLease(Lease lease) {
 		leases.add(lease);
 	}
 
+	/**
+	 * Returns all the properties in the list
+	 * @return properties
+	 */
+	public ArrayList<Property> getAllProperties() {
+		return properties;
+	}
+
+	/**
+	 * Returns all the tenants in the list
+	 * @return tenants
+	 */
+	public ArrayList<Tenant> getAllTenants() {
+		return tenants;
+	}
+
+	/**
+	 * Returns all the leases in the list
+	 * @return leases
+	 */
+	public ArrayList<Lease> getAllLeases() {
+		return leases;
+	}
+
+	/**
+	 * This method rents a unit based on the availability of the property. 
+	 * If the property is available, a lease is created between the tenant and the property, otherwise a message is displayed stating that property is not available.
+	 * @param property
+	 * @param tenant
+	 * @param startDate
+	 * @param endDate
+	 * @param rentAmount
+	 */
 	public void rentUnit(Property property, Tenant tenant, LocalDate startDate, LocalDate endDate, double rentAmount) {
 		// Check if property is available
 		boolean propertyAvailable = true;
@@ -67,6 +108,10 @@ public class RentalController {
 		}
 	}
 
+	/**
+	 * This method returns the rented units
+	 * @return rentedUnits
+	 */
 	public ArrayList<Lease> getRentedUnits() {
 		ArrayList<Lease> rentedUnits = new ArrayList<>();
 		for (Lease lease : leases) {
@@ -77,6 +122,10 @@ public class RentalController {
 		return rentedUnits;
 	}
 
+	/**
+	 * This method returns the units that are available
+	 * @return
+	 */
 	public ArrayList<Property> getVacantUnits() {
 		ArrayList<Property> vacantUnits = new ArrayList<>();
 		for (Property property : properties) {
@@ -94,6 +143,11 @@ public class RentalController {
 		return vacantUnits;
 	}
 
+	/**
+	 * This method returns the tenant based on the tenant ID
+	 * @param tenantID
+	 * @return
+	 */
 	public Tenant getTenant(int tenantID) {
 		for (Tenant tenant : tenants) {
 			if (tenant.getTenantID() == tenantID) {
@@ -104,7 +158,7 @@ public class RentalController {
 	}
 
 	/**
-	 * This method returns a hashmap containing the property and the interested tenants
+	 * This method returns a hashmap containing the property and its interested tenants when the property becomes available
 	 * @return propertyAndInterestedTenants
 	 */
 	public HashMap<String, ArrayList<String>> notifyInterestedTenants() {
@@ -154,13 +208,15 @@ public class RentalController {
 		ArrayList<String> unpaidTenants = new ArrayList<String>();
 		for(Lease lease : leases) {
 			if(lease.getRentDue() > 0) 
-				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
-			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ":" + lease.getProperty().getFullAddress());
+				unpaidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
+			else paidTenants.add(lease.getTenant().getFirstName() + " " + lease.getTenant().getLastName() + ": " + lease.getProperty().getFullAddress());
 		}
 
 		HashMap<String, ArrayList<String>> paidOrNotPaidAndTenants = new HashMap<String, ArrayList<String>>();
-		paidOrNotPaidAndTenants.put("PAID", paidTenants);
-		paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
+		if(!paidTenants.isEmpty())
+			paidOrNotPaidAndTenants.put("PAID", paidTenants);
+		if(!unpaidTenants.isEmpty())
+			paidOrNotPaidAndTenants.put("UNPAID", unpaidTenants);
 		return paidOrNotPaidAndTenants;
 	}
 }
