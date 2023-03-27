@@ -15,7 +15,9 @@ Ensure that your JAVA JDK version is 11 or higher.
 5. Right-click on your project in the Package Explorer and select "Run As" > "Run Configurations".
 
 6. In the "VM arguments" field, add the following lines, replacing the path with the location where you have the JavaFX modules stored:
+
 ```--module-path <path_where_jars_are_stored>```
+
 ```--add-modules javafx.controls,javafx.fxml```
 
 7. Click the "Apply" button to save the changes, then click the "Run" button to run your project.
